@@ -1,19 +1,49 @@
-# 💬 Chatbot template
+import streamlit as st
+import openai
 
-A simple Streamlit app that shows how to build a chatbot using OpenAI's GPT-3.5.
+# Get your API key from Streamlit Secrets
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-template.streamlit.app/)
+st.set_page_config(page_title="SehatBot", layout="centered")
 
-### How to run it on your own machine
+st.markdown("<h1 style='text-align: center; color: #FF69B4;'>🌸 SehatBot 🌸</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: #FFD700;'>Your Personalized PCOS Wellness Guide</h3>", unsafe_allow_html=True)
 
-1. Install the requirements
+st.write("### 👋 Welcome to SehatBot!")
+st.write("This AI-powered assistant helps you manage PCOS with personalized advice in English & Urdu.")
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+name = st.text_input("Enter your name")
+age = st.number_input("Your age", min_value=12, max_value=50)
+cycle = st.selectbox("Your cycle status", ["Regular", "Irregular", "No period"])
+goals = st.multiselect("Your goals", ["Weight loss", "Fertility", "Hormonal balance", "Glowing skin", "Regular periods"])
 
-2. Run the app
+symptoms = st.text_area("Any specific symptoms or concerns? (e.g., facial hair, mood swings, cravings, acne)")
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+if st.button("Get My Plan"):
+    prompt = f"""
+    My name is {name}, I am {age} years old. My period cycle is {cycle}.
+    My PCOS goals are: {', '.join(goals)}.
+    My symptoms include: {symptoms}.
+    
+    Please create a friendly, Urdu + English response with advice for:
+    - Daily routine
+    - Food & herbs
+    - Exercise
+    - Any motivation tips
+    """
+
+    with st.spinner("🧠 SehatBot is thinking..."):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            bot_reply = response["choices"][0]["message"]["content"]
+            st.markdown("### 📋 Your Personalized PCOS Plan")
+            st.write(bot_reply)
+        except Exception as e:
+            st.error(f"Something went wrong: {e}")
+
+st.markdown("---")
+st.write("💡 Want premium features like reminders, PDF plan & inositol guidance?")
+st.write("💸 Starting from Rs. 1000 via EasyPaisa (coming soon!)")
